@@ -1,3 +1,4 @@
+
 variable "users" {
   description = "List of users with their details and group assignments"
   type = list(object({
@@ -36,7 +37,7 @@ variable "permission_sets" {
     session_duration = optional(string, "PT8H")
     managed_policies = optional(list(string), []) # List of AWS managed policy ARNs
     inline_policy    = optional(string, "")       # Inline JSON policy
-    relay_state      = optional(string, null)       # Optional URL to redirect users to after signing in
+    relay_state      = optional(string, null)     # Optional URL to redirect users to after signing in
     tags             = optional(map(string), {})  # Optional resource tags
   }))
   default = {}
