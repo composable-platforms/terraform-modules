@@ -1,6 +1,5 @@
 # provider.tf
 # variables.tf
-data "aws_caller_identity" "current" {}
 # Get the SSO instance
 data "aws_ssoadmin_instances" "main" {}
 
@@ -173,37 +172,6 @@ resource "aws_ssoadmin_account_assignment" "account_assignments" {
   target_id   = each.value.account_id
   target_type = "AWS_ACCOUNT"
 }
-
-# Outputs
-output "sso_instance_arn" {
-  description = "ARN of the SSO instance"
-  value       = tolist(data.aws_ssoadmin_instances.main.arns)[0]
-}
-
-output "identity_store_id" {
-  description = "ID of the Identity Store"
-  value       = tolist(data.aws_ssoadmin_instances.main.identity_store_ids)[0]
-}
-
-output "admin_group_id" {
-  description = "ID of the Administrators group"
-  value       = aws_identitystore_group.administrators.group_id
-}
-
-output "admin_permission_set_arn" {
-  description = "ARN of the Administrator permission set"
-  value       = aws_ssoadmin_permission_set.administrator.arn
-}
-
-output "login_url" {
-  description = "The url to access to login to AWS. For new users, click forgot password."
-  value       = "https://${tolist(data.aws_ssoadmin_instances.main.identity_store_ids)[0]}.awsapps.com/start"
-}
-
-## Need to go to url and trigger forgot password flow.check 
-# lpHRwY5mMbom!
-
-
 
 
 # Define Permission Sets
