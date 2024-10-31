@@ -5,51 +5,6 @@ data "aws_ssoadmin_instances" "main" {}
 
 # Locals for processing user-group relationships
 locals {
-  # Step 1: Create a list of all user-group combinations
-  # Example output for user_group_pairs:
-  # [
-  #   {
-  #     email = "lukediliberto@gmail.com"
-  #     group = "readonly"
-  #   },
-  #   {
-  #     email = "lukediliberto@gmail.com"
-  #     group = "administrators"
-  #   },
-  #   {
-  #     email = "jane.doe@example.com"
-  #     group = "developers"
-  #   }
-  # ]
-  user_group_pairs = flatten([
-    for user in var.users : [
-      for group in user.groups : {
-        email = user.email
-        group = group
-      }
-    ] if length(user.groups) > 0
-  ])
-
-  # Step 2: Convert to a map with a unique key for each membership
-  # Example output for user_group_memberships:
-  # {
-  #   "lukediliberto@gmail.com-readonly" = {
-  #     email = "lukediliberto@gmail.com"
-  #     group = "readonly"
-  #   }
-  #   "lukediliberto@gmail.com-administrators" = {
-  #     email = "lukediliberto@gmail.com"
-  #     group = "administrators"
-  #   }
-  #   "jane.doe@example.com-developers" = {
-  #     email = "jane.doe@example.com"
-  #     group = "developers"
-  #   }
-  # }
-  user_group_memberships = {
-    for pair in local.user_group_pairs :
-    "${pair.email}-${pair.group}" => pair
-  }
   # Permission set managed policy processing
   # Example output:
   # {
@@ -91,10 +46,10 @@ resource "aws_identitystore_group" "groups" {
 
 # Create Users
 resource "aws_identitystore_user" "users" {
-  for_each          = { for user in var.users : user.username => user }
+  for_each          = { for user in local.normalized_users : user.username => user }
   identity_store_id = tolist(data.aws_ssoadmin_instances.main.identity_store_ids)[0]
-  display_name      = coalesce(each.value.display_name, "${each.value.given_name} ${each.value.family_name}")
-  user_name         = coalesce(each.value.username, each.value.email)
+  display_name      = each.value.display_name
+  user_name         = each.value.username
 
   name {
     given_name  = each.value.given_name
