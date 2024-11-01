@@ -7,10 +7,6 @@ resource "aws_organizations_account" "account" {
 
 }
 
-data "aws_iam_role" "orig_access_role" {
-  name = aws_organizations_account.account.role_name
-}
-
 resource "aws_ssoadmin_account_assignment" "account_assignments" {
   # stringify sso_assignments to make iterable set
   for_each = var.sso_assignments
