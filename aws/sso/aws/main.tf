@@ -88,10 +88,10 @@ locals {
   #   }
   # ]
   account_assignments_flat = flatten([
-    for account_id, account in var.account_assignments : [
+    for account in var.account_assignments : [
       for assignment in account.assignments : [
         for group_name in assignment.group_names : {
-          account_id          = account_id
+          account_id          = account.account_id
           permission_set_name = assignment.permission_set_name
           group_name          = group_name
         }

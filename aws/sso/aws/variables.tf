@@ -76,14 +76,16 @@ variable "permission_sets" {
 
 # New variable for account assignments
 variable "account_assignments" {
-  description = "Map of AWS accounts and their permission set assignments to groups"
-  type = map(object({
+  description = "List of AWS account assignments and their permission set configurations"
+  type = list(object({
+    account_id   = string
     account_name = optional(string, "")
     assignments = list(object({
       permission_set_name = string
       group_names         = list(string)
     }))
   }))
+  default = []
 }
 
 # Example
