@@ -141,3 +141,21 @@ resource "aws_ssoadmin_permission_set" "permission_sets" {
 
   tags = each.value.tags
 }
+
+# Attach managed policies to permission sets
+resource "aws_ssoadmin_managed_policy_attachment" "managed_policy_attachments" {
+  for_each = local.managed_policy_attachments
+
+  instance_arn       = tolist(data.aws_ssoadmin_instances.main.arns)[0]
+  managed_policy_arn = each.value.policy_arn
+  permission_set_arn = aws_ssoadmin_permission_set.permission_sets[each.value.pset_name].arn
+}
+
+# Attach inline policies to permission sets
+resource "aws_ssoadmin_permission_set_inline_policy" "inline_policy_attachments" {
+  for_each = local.inline_policy_attachments
+
+  inline_policy      = each.value
+  instance_arn       = tolist(data.aws_ssoadmin_instances.main.arns)[0]
+  permission_set_arn = aws_ssoadmin_permission_set.permission_sets[each.key].arn
+}
