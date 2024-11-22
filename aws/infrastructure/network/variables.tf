@@ -31,4 +31,5 @@ variable "tunnel_instance_type" {
 
 variable "certificate_arn" {
   description = "Certificate ARN for the ALB's public listener"
+  default     = null
 }
