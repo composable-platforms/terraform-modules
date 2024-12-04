@@ -26,7 +26,8 @@ resource "aws_ssoadmin_account_assignment" "account_assignments" {
 }
 
 resource "aws_budgets_budget" "monthly_budget" {
-  name         = "overall-account-monthly-budget"
+  account_id   = aws_organizations_account.account.id
+  name         = "${var.account_name}-account-monthly-budget-${aws_organizations_account.account.id}"
   budget_type  = "COST"
   limit_amount = var.budget_config.limit_amount
   limit_unit   = "USD"
