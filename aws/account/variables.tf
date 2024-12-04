@@ -50,3 +50,17 @@ variable "sso_instance_arn" {
   description = "ARN of the SSO instance to use."
   type        = string
 }
+
+variable "budget_config" {
+  description = "Configuration for AWS Budget alerts. The thresholds are percentages (formatted as 0-100) of the actual/forecasted budget that trigger notification. If no subscriber emails are provided, the account_email will be used."
+  type = object({
+    limit_amount                         = number
+    actual_thresholds_for_notification   = optional(list(number), [80, 100])
+    forecast_thresholds_for_notification = optional(list(number), [100])
+    subscriber_emails                    = optional(list(string), [])
+  })
+  validation {
+    condition     = try(var.budget_config.limit_amount > 0, false)
+    error_message = "A budget limit amount greater than 0 must be provided."
+  }
+}
