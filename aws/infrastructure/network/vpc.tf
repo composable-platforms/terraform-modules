@@ -3,8 +3,29 @@
 # Fetch AZs in the current region
 data "aws_availability_zones" "available" {
 }
-
-# if I add an availability zone - will that fuck up the cidr blocks?
+locals {
+  # Private subnets get /19 (larger), while public and data get /20 (smaller)
+  subnet_cidrs = {
+    # Public subnets: /20 = 4,094 usable IPs each
+    public = {
+      "az1" = cidrsubnet(var.cidr_block, 4, 0) # 10.0.0.0/20
+      "az2" = cidrsubnet(var.cidr_block, 4, 1) # 10.0.16.0/20
+      "az3" = cidrsubnet(var.cidr_block, 4, 2) # 10.0.32.0/20
+    }
+    # Private subnets: /19 = 8,190 usable IPs each
+    private = {
+      "az1" = cidrsubnet(var.cidr_block, 3, 2) # 10.0.64.0/19
+      "az2" = cidrsubnet(var.cidr_block, 3, 3) # 10.0.96.0/19
+      "az3" = cidrsubnet(var.cidr_block, 3, 4) # 10.0.128.0/19
+    }
+    # Data subnets: /20 = 4,094 usable IPs each
+    data = {
+      "az1" = cidrsubnet(var.cidr_block, 4, 12) # 10.0.192.0/20
+      "az2" = cidrsubnet(var.cidr_block, 4, 13) # 10.0.208.0/20
+      "az3" = cidrsubnet(var.cidr_block, 4, 14) # 10.0.224.0/20
+    }
+  }
+}
 
 resource "aws_service_discovery_private_dns_namespace" "cloudmap" {
   name        = "${var.stage}-cluster.local"
@@ -24,7 +45,7 @@ resource "aws_vpc" "vpc" {
 # Create var.az_count public subnets, each in a different AZ
 resource "aws_subnet" "public" {
   count                   = var.az_count
-  cidr_block              = cidrsubnet(aws_vpc.vpc.cidr_block, 5, var.az_count + count.index)
+  cidr_block              = local.subnet_cidrs.public["az${count.index + 1}"]
   availability_zone       = data.aws_availability_zones.available.names[count.index]
   vpc_id                  = aws_vpc.vpc.id
   map_public_ip_on_launch = true
@@ -37,7 +58,7 @@ resource "aws_subnet" "public" {
 # Create var.az_count private subnets, each in a different AZ
 resource "aws_subnet" "private" {
   count             = var.az_count
-  cidr_block        = cidrsubnet(aws_vpc.vpc.cidr_block, 5, count.index)
+  cidr_block        = local.subnet_cidrs.private["az${count.index + 1}"]
   availability_zone = data.aws_availability_zones.available.names[count.index]
   vpc_id            = aws_vpc.vpc.id
 
@@ -49,7 +70,7 @@ resource "aws_subnet" "private" {
 # Create var.az_count data subnets, each in a different AZ
 resource "aws_subnet" "data" {
   count             = var.az_count
-  cidr_block        = cidrsubnet(aws_vpc.vpc.cidr_block, 5, 2 * var.az_count + count.index)
+  cidr_block        = local.subnet_cidrs.data["az${count.index + 1}"]
   availability_zone = data.aws_availability_zones.available.names[count.index]
   vpc_id            = aws_vpc.vpc.id
 
@@ -136,7 +157,7 @@ resource "aws_vpc_endpoint" "s3" {
   route_table_ids = aws_route_table.private.*.id
 
   tags = {
-    Name = "${var.stage}-vpc-endpoint-s3-curai-ml"
+    Name = "${var.stage}-vpc-endpoint-s3"
   }
 }
 
