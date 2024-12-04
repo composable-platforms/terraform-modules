@@ -6,7 +6,7 @@ variable "stage" {
 variable "cidr_block" {
   description = "CIDR block used as the basis of the VPC"
   type        = string
-  default     = "10.10.0.0/16" # Don't overlap with prod eng (10.0.0.0/16) in case we need to peer
+  default     = "10.0.0.0/16" # la
 }
 
 variable "aws_region" {
