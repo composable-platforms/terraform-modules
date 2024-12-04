@@ -1,7 +1,7 @@
-locals {
-  # Use subscriber_emails if provided, otherwise fall back to account_email
-  notification_emails = length(var.budget_config.subscriber_emails) > 0 ? var.budget_config.subscriber_emails : [var.account_email]
-}
+# locals {
+#   # Use subscriber_emails if provided, otherwise fall back to account_email
+#   notification_emails = length(var.budget_config.subscriber_emails) > 0 ? var.budget_config.subscriber_emails : [var.account_email]
+# }
 
 resource "aws_organizations_account" "account" {
   name              = var.account_name
@@ -25,33 +25,33 @@ resource "aws_ssoadmin_account_assignment" "account_assignments" {
   target_type = "AWS_ACCOUNT"
 }
 
-resource "aws_budgets_budget" "monthly_budget" {
-  account_id   = aws_organizations_account.account.id
-  name         = "${var.account_name}-account-monthly-budget-${aws_organizations_account.account.id}"
-  budget_type  = "COST"
-  limit_amount = var.budget_config.limit_amount
-  limit_unit   = "USD"
-  time_unit    = "MONTHLY"
+# resource "aws_budgets_budget" "monthly_budget" {
+#   account_id   = aws_organizations_account.account.id
+#   name         = "${var.account_name}-account-monthly-budget-${aws_organizations_account.account.id}"
+#   budget_type  = "COST"
+#   limit_amount = var.budget_config.limit_amount
+#   limit_unit   = "USD"
+#   time_unit    = "MONTHLY"
 
-  dynamic "notification" {
-    for_each = var.budget_config.actual_thresholds_for_notification
-    content {
-      comparison_operator        = "GREATER_THAN"
-      threshold                  = notification.value
-      threshold_type             = "PERCENTAGE"
-      notification_type          = "ACTUAL"
-      subscriber_email_addresses = local.notification_emails
-    }
-  }
+#   dynamic "notification" {
+#     for_each = var.budget_config.actual_thresholds_for_notification
+#     content {
+#       comparison_operator        = "GREATER_THAN"
+#       threshold                  = notification.value
+#       threshold_type             = "PERCENTAGE"
+#       notification_type          = "ACTUAL"
+#       subscriber_email_addresses = local.notification_emails
+#     }
+#   }
 
-  dynamic "notification" {
-    for_each = var.budget_config.forecast_thresholds_for_notification
-    content {
-      comparison_operator        = "GREATER_THAN"
-      threshold                  = notification.value
-      threshold_type             = "PERCENTAGE"
-      notification_type          = "ACTUAL"
-      subscriber_email_addresses = local.notification_emails
-    }
-  }
-}
+#   dynamic "notification" {
+#     for_each = var.budget_config.forecast_thresholds_for_notification
+#     content {
+#       comparison_operator        = "GREATER_THAN"
+#       threshold                  = notification.value
+#       threshold_type             = "PERCENTAGE"
+#       notification_type          = "ACTUAL"
+#       subscriber_email_addresses = local.notification_emails
+#     }
+#   }
+# }
