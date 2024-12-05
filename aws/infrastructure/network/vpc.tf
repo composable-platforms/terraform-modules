@@ -51,7 +51,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags = {
-    Tier = "public"
+    tier = "public"
   }
 }
 
@@ -63,7 +63,7 @@ resource "aws_subnet" "private" {
   vpc_id            = aws_vpc.vpc.id
 
   tags = {
-    Tier = "private"
+    tier = "private"
   }
 }
 
@@ -75,7 +75,7 @@ resource "aws_subnet" "data" {
   vpc_id            = aws_vpc.vpc.id
 
   tags = {
-    Tier = "data"
+    tier = "data"
   }
 }
 
