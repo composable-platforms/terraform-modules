@@ -1,7 +1,3 @@
-variable "aws_region" {
-  default = "us-west-2"
-}
-
 variable "stage" {
   type        = string
   nullable    = false
@@ -20,7 +16,6 @@ variable "service_name" {
   description = "The service key from the services section."
 }
 
-
 variable "image" {
   type        = string
   description = "The image `name:tag` for the main application container."
@@ -32,38 +27,45 @@ variable "image" {
 }
 
 variable "task_cpu" {
-  default     = 1024
+  default     = 256
   description = "This is the _entire_ task's CPU allocation. Should include margin for sidecars."
-  nullable    = false
 }
 
 variable "task_memory" {
-  default     = 2048
+  default     = 512
   description = "This the _entire_ task's memory allocation. Should include margin for sidecars."
-  nullable    = false
 }
 
-variable "entrypoint" {
+variable "container_entrypoint" {
   type    = list(string)
   default = null
 }
 
-variable "command" {
+variable "container_command" {
   type    = list(string)
   default = null
 }
 
-variable "environment" {
-  type        = map(any)
+
+variable "container_environment" {
+  type        = map(string)
   default     = {}
-  nullable    = false # if we get a null value, we set it to empty map so iteration doesn't break
-  description = "Environment for main application container. Values containing valid secret or parameter ARNs will use the valueFrom syntax for secrets injection in ECS."
+  description = "Environment variables to pass to container as a map of key-value pairs"
 }
 
-variable "container_port" {
-  type        = number
-  description = "If no container port is specified, set to 9999 so envoy can still spin up."
+variable "container_secrets" {
+  type        = map(string)
+  default     = {}
+  description = "Secrets from Secrets Manager or Parameter Store to inject into container environment. Map of environment variable names to ARNs"
 }
+
+
+variable "ports" {
+  type        = list(string)
+  default     = []
+  description = "List of port mappings in Docker Compose format (e.g. ['8080:80', '443:443']) TCP Protocol is assumed."
+}
+
 
 variable "ephemeral_storage" {
   type        = number
@@ -71,48 +73,31 @@ variable "ephemeral_storage" {
   nullable    = true
 }
 
-
-# alb.tf
-# definitions.tf
-
-# autoscaling.tf
-variable "replicas" {
+variable "min_capacity" {
   type        = number
-  description = "If null, default in locals to 1 (non-prod) and 2 (prod) and include autoscaling."
-  nullable    = true
+  description = "Minimum number of tasks to run"
+  default     = 1
 }
-
-variable "max_replicas" {
-  type        = number
-  description = "If null, default in locals to 2 (non-prod) and 6 (prod) and include autoscaling."
-  nullable    = true
-}
-
-
-variable "cloudwatch_alarms" {
-  type        = map(any)
-  default     = {}
-  description = "Default locals object TBD when needed by services for customization."
-  nullable    = true
-}
-
-# TBD
-# variable "depends_on_containers" {
-#   type        = list(object({ containerName = string, condition = string }))
-#   default     = null
-#   description = "condition can be START, COMPLETE, SUCCESS, HEALTHY"
-# }
 
 variable "custom_task_iam_policy" {
   description = "Custom policy to add to the task role. Defined in your main.tf with `data.aws_policy_document.mypolicy` and passed into this variable with `data.aws_policy_document.mypolicy.json`"
   type        = any
   default     = null
-  nullable    = true
 }
 
 variable "custom_task_exec_iam_policy" {
   description = "Custom policy to add to the task exec role. Defined in your main.tf with `data.aws_policy_document.mypolicy` and passed into this variable with `data.aws_policy_document.mypolicy.json`"
   type        = any
   default     = null
-  nullable    = true
+}
+
+variable "custom_sidecars" {
+  description = "Sidecars to add to main app container"
+  type        = list(any)
+  default     = []
+}
+
+variable "log_retention" {
+  description = "Days to retain Cloudwatch logs. 0 for indefinitely"
+  default     = 90
 }
