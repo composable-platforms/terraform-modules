@@ -29,10 +29,10 @@ data "aws_lb" "lb" {
   name = "${var.stage}-alb"
 }
 
-data "aws_lb_listener" "listener" {
-  load_balancer_arn = data.aws_lb.lb.arn
-  port              = 443
-}
+# data "aws_lb_listener" "listener" {
+#   load_balancer_arn = data.aws_lb.lb.arn
+#   port              = 443
+# }
 
 data "aws_security_group" "ecs" {
   name = "${var.stage}-security-group-ecs"

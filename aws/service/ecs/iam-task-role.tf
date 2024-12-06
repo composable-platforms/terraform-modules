@@ -29,7 +29,7 @@ data "aws_iam_policy_document" "task_role" {
 
 resource "aws_iam_role_policy" "ecs_permissions" {
   role   = aws_iam_role.task_role.id
-  policy = data.aws_iam_policy_document.task_role
+  policy = data.aws_iam_policy_document.task_role.json
 }
 
 resource "aws_iam_role_policy" "custom_task_policy" {
