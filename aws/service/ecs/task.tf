@@ -25,7 +25,9 @@ locals {
   ]
   parsed_ports = [
     for mapping in var.ports : {
-      hostPort      = try(tonumber(split(":", mapping)[0]), tonumber(mapping))
+      #   for awsvpc host port and container ports must match
+      #   hostPort      = try(tonumber(split(":", mapping)[0]), tonumber(mapping))
+      hostPort      = try(tonumber(split(":", mapping)[1]), tonumber(mapping))
       containerPort = try(tonumber(split(":", mapping)[1]), tonumber(mapping))
       protocol      = "tcp"
     }
