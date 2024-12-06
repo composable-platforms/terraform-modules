@@ -34,30 +34,6 @@ data "aws_lb_listener" "listener" {
   port              = 443
 }
 
-# data "aws_iam_role" "ecs_task_execution_role" {
-#   name = "ecs-task-execution-role-curai"
-# }
-
-# data "aws_iam_role" "ecs_task_role" {
-#   name = "ecs-task-role-curai"
-# }
-
-# data "aws_security_group" "ecs" {
-#   name = "${var.env}-security-group-ecs-curai"
-# }
-
-# data "aws_sns_topic" "sns_topic" {
-#   name = "${var.env}-sns-topic-curai"
-# }
-
-# data "aws_secretsmanager_secret" "dd_api_key" {
-#   name = "${var.env}-secret-DD_API_KEY-curai"
-# }
-
-# data "aws_secretsmanager_secret" "cert_public_key" {
-#   name = "${var.env}-secret-CERT_PUBLIC_KEY-curai"
-# }
-
-# data "aws_secretsmanager_secret" "cert_private_key" {
-#   name = "${var.env}-secret-CERT_PRIVATE_KEY-curai"
-# }
+data "aws_security_group" "ecs" {
+  name = "${var.stage}-security-group-ecs"
+}
